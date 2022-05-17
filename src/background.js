@@ -19,6 +19,28 @@ chrome.action.onClicked.addListener(tab => {
 let guardian = 0;
 let urls;
 
+
+chrome.runtime.onConnect.addListener(port => {
+    if(port.name==="safePortUrls"){
+        port.onMessage.addListener(async message=>{
+            
+            urls = message.urlsProfiles
+            const [url] = urls
+
+            await chrome.tabs.update(tabId,{url})
+
+            setTimeout(()=>{
+                chrome.scripting.executeScript({
+                    target: {tabId},
+                    files: ['./scripts/getContactUrl.js']    
+                }) 
+            },5000)
+        })
+    } 
+})
+
+export default urls;
+
 chrome.runtime.onConnect.addListener(port=>{
     if(port.name==="safePort"){
         port.onMessage.addListener(async message=>{
@@ -27,7 +49,7 @@ chrome.runtime.onConnect.addListener(port=>{
             console.log("datos guardados en indexdb")
 
             if(guardian < urls.length) {
-                await chrome.tabs.update(tabId,{url:urls[guardian + 1]})
+                await chrome.tabs.update(tabId,{urls:urls[guardian + 1]})
                 setTimeout(()=>{
                     chrome.scripting.executeScript({
                     target: {tabId},
@@ -44,7 +66,7 @@ chrome.runtime.onConnect.addListener(port=>{
 
             await db.profiles.add(message)
             console.log("datos guardados en indexdb")
-            await chrome.tabs.update(tabId,{url:urls[guardian]})
+            await chrome.tabs.update(tabId,{urls:urls[guardian]})
             console.log({url:urls[guardian]})
             setTimeout(()=>{
                 chrome.scripting.executeScript({
@@ -54,22 +76,6 @@ chrome.runtime.onConnect.addListener(port=>{
             } , 5000)
     })
 
-    } else if(port.name==="safePortUrls"){
-        port.onMessage.addListener(async message=>{
-            
-            urls = message.urlsProfiles 
-            
-            const [url] = urls
-            await chrome.tabs.update(tabId,{url})
-
-
-            setTimeout(()=>{
-                chrome.scripting.executeScript({
-                    target: {tabId},
-                    files: ['./scripts/getContactUrl.js']    
-                }) 
-            },5000)
-        })
     } else if (port.name === "contactPortUrl") {
         port.onMessage.addListener(async message => {
             

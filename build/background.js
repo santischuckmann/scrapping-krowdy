@@ -1,7 +1,9 @@
 (() => {
   // src/config.js
+  console.log(background_default);
   var URL = {
-    base: "https://www.linkedin.com/search/results/people/?keywords=fullstack"
+    base: "https://www.linkedin.com/search/results/people/?keywords=fullstack",
+    urls: [background_default]
   };
   var config_default = URL;
 
@@ -4747,12 +4749,28 @@
   var guardian = 0;
   var urls;
   chrome.runtime.onConnect.addListener((port) => {
+    if (port.name === "safePortUrls") {
+      port.onMessage.addListener(async (message) => {
+        urls = message.urlsProfiles;
+        const [url] = urls;
+        await chrome.tabs.update(tabId, { url });
+        setTimeout(() => {
+          chrome.scripting.executeScript({
+            target: { tabId },
+            files: ["./scripts/getContactUrl.js"]
+          });
+        }, 5e3);
+      });
+    }
+  });
+  var background_default = urls;
+  chrome.runtime.onConnect.addListener((port) => {
     if (port.name === "safePort") {
       port.onMessage.addListener(async (message) => {
         await db.profiles.add(message);
         console.log("datos guardados en indexdb");
         if (guardian < urls.length) {
-          await chrome.tabs.update(tabId, { url: urls[guardian + 1] });
+          await chrome.tabs.update(tabId, { urls: urls[guardian + 1] });
           setTimeout(() => {
             chrome.scripting.executeScript({
               target: { tabId },
@@ -4766,24 +4784,12 @@
       port.onMessage.addListener(async (message) => {
         await db.profiles.add(message);
         console.log("datos guardados en indexdb");
-        await chrome.tabs.update(tabId, { url: urls[guardian] });
+        await chrome.tabs.update(tabId, { urls: urls[guardian] });
         console.log({ url: urls[guardian] });
         setTimeout(() => {
           chrome.scripting.executeScript({
             target: { tabId },
             files: ["./scripts/scrapper.js"]
-          });
-        }, 5e3);
-      });
-    } else if (port.name === "safePortUrls") {
-      port.onMessage.addListener(async (message) => {
-        urls = message.urlsProfiles;
-        const [url] = urls;
-        await chrome.tabs.update(tabId, { url });
-        setTimeout(() => {
-          chrome.scripting.executeScript({
-            target: { tabId },
-            files: ["./scripts/getContactUrl.js"]
           });
         }, 5e3);
       });

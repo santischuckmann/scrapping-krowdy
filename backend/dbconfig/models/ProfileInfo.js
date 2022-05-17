@@ -1,17 +1,16 @@
 import mongoose from ('mongoose')
 
-const Experience = new mongoose.Schema({
+const TitleAndDate = new mongoose.Schema({
   title: {
     type: String,
     required: true
   },
-  startingDate: {
-    type: Date
-  },
-  endingDate: {
-    type: Date,
+  Date: {
+    type: String
   }
 })
+
+const nestedModel = mongoose.modal('TitleAndDate', TitleAndDate)
 
 const ProfileInfo = new mongoose.Schema({
   name: {
@@ -20,8 +19,11 @@ const ProfileInfo = new mongoose.Schema({
     trim: true,
   },
   experience: {
-    type: [String],
+    type: [TitleAndDate],
   },
+  education: {
+    type: [TitleAndDate]
+  }
 })
 
 const model = mongoose.model('ProfileInfo', ProfileInfo)
