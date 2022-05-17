@@ -4733,40 +4733,47 @@
 
   // src/background.js
   var tabId;
-  chrome.action.onClicked.addListener((tab2) => {
+  chrome.action.onClicked.addListener((tab) => {
     chrome.tabs.create({
       url: config_default.base
-    }, (tab3) => {
-      tabId = tab3.id;
+    }, (tab2) => {
+      tabId = tab2.id;
       chrome.scripting.executeScript({
-        target: { tabId: tab3.id },
+        target: { tabId },
         files: ["./scripts/getUrls.js"]
       });
     });
   });
   var guardian = 0;
   var urls;
-  async function getCurrentTab() {
-    let queryOptions = { active: true, currentWindow: true };
-    let [tab2] = await chrome.tabs.query(queryOptions);
-    return tab2;
-  }
   chrome.runtime.onConnect.addListener((port) => {
     if (port.name === "safePort") {
       port.onMessage.addListener(async (message) => {
         await db.profiles.add(message);
         console.log("datos guardados en indexdb");
-        console.log(guardian);
         if (guardian < urls.length) {
-          await chrome.tabs.update(tabId, { url: urls[guardian] });
+          await chrome.tabs.update(tabId, { url: urls[guardian + 1] });
           setTimeout(() => {
             chrome.scripting.executeScript({
-              target: { tabId: tab.id },
-              files: ["./scripts/scrapper.js"]
+              target: { tabId },
+              files: ["./scripts/getContactUrl.js"]
             });
-          }, 5e3);
+          }, 7e3);
           guardian++;
         }
+      });
+    } else if (port.name === "contactSafePort") {
+      port.onMessage.addListener(async (message) => {
+        await db.profiles.add(message);
+        console.log("datos guardados en indexdb");
+        await chrome.tabs.update(tabId, { url: urls[guardian] });
+        console.log({ url: urls[guardian] });
+        setTimeout(() => {
+          chrome.scripting.executeScript({
+            target: { tabId },
+            files: ["./scripts/scrapper.js"]
+          });
+        }, 5e3);
       });
     } else if (port.name === "safePortUrls") {
       port.onMessage.addListener(async (message) => {
@@ -4775,27 +4782,21 @@
         await chrome.tabs.update(tabId, { url });
         setTimeout(() => {
           chrome.scripting.executeScript({
-            target: { tabId: tab.id },
+            target: { tabId },
             files: ["./scripts/getContactUrl.js"]
           });
         }, 5e3);
-        guardian++;
       });
     } else if (port.name === "contactPortUrl") {
       port.onMessage.addListener(async (message) => {
         const url = message.contactPortUrl;
-        const urlActual = getCurrentTab();
         await chrome.tabs.update(tabId, { url });
         setTimeout(() => {
           chrome.scripting.executeScript({
-            target: { tabId: tab.id },
+            target: { tabId },
             files: ["./scripts/contactScrapper.js"]
           });
-        }, 5e3);
-        setTimeout(async () => {
-          await chrome.tabs.update(tabId, urlActual);
-        }, 3e3);
-        guardian++;
+        }, 2e3);
       });
     }
   });

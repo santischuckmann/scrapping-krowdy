@@ -48,7 +48,8 @@
   // src/scripts/getContactUrl.js
   waitForElement_default("h1").then(() => {
     const contactPortUrl = $(selectors_default.profile.css.contactInfo).href;
-    let port = chrome.runtime.connect({ name: "contactPortUrls" });
+    console.log(contactPortUrl);
+    let port = chrome.runtime.connect({ name: "contactPortUrl" });
     port.postMessage({ contactPortUrl });
   }).catch(() => {
     console.log("intentelo mas tarde");

@@ -57,12 +57,13 @@
   var gatherAndDeleteNulls_default = gatherAndDeleteNulls;
 
   // src/scripts/contactScrapper.js
-  waitForElement_default("h1").then(() => {
+  waitForElement_default("#pv-contact-info").then(() => {
     const contactLinkedIn = $(selectors_default.profile.css.inside.linkedIn).textContent;
-    const contactEmail = $(selectors_default.profile.css.inside.email).href;
-    const contactPhone = $(selectors_default.profile.css.inside.phoneNumber).textContent;
+    const contactEmail = $(selectors_default.profile.css.inside.email)?.href;
+    const contactPhone = $(selectors_default.profile.css.inside.phoneNumber)?.textContent;
+    console.log(contactLinkedIn);
     const contactInfo = gatherAndDeleteNulls_default(contactEmail, contactPhone, contactLinkedIn);
-    let port = chrome.runtime.connect({ name: "safePort" });
+    let port = chrome.runtime.connect({ name: "contactSafePort" });
     port.postMessage({ contactInfo });
   }).catch(() => {
     console.log("intentelo mas tarde");
