@@ -3,6 +3,7 @@ import { db } from "./lib/db.js"
 
 let tabId;
 
+
 chrome.action.onClicked.addListener(tab => {
     chrome.tabs.create({
         url: URLS.base
@@ -16,6 +17,7 @@ chrome.action.onClicked.addListener(tab => {
    
 })
 
+let contactInfo;
 let guardian = 0;
 let urls;
 
@@ -45,11 +47,17 @@ chrome.runtime.onConnect.addListener(port=>{
     if(port.name==="safePort"){
         port.onMessage.addListener(async message=>{
 
-            await db.profiles.add(message)
-            console.log("datos guardados en indexdb")
+            sendToDb = {...message, contactInfo}
+
+            try {
+                await db.profiles.add(sendToDb)
+                console.log("datos guardados en indexdb")
+            } catch (error) {
+                console.log(error)
+            }
 
             if(guardian < urls.length) {
-                await chrome.tabs.update(tabId,{urls:urls[guardian + 1]})
+                await chrome.tabs.update(tabId,{url:urls[guardian + 1]})
                 setTimeout(()=>{
                     chrome.scripting.executeScript({
                     target: {tabId},
@@ -64,9 +72,8 @@ chrome.runtime.onConnect.addListener(port=>{
     } else if(port.name==="contactSafePort"){
         port.onMessage.addListener(async message=>{
 
-            await db.profiles.add(message)
-            console.log("datos guardados en indexdb")
-            await chrome.tabs.update(tabId,{urls:urls[guardian]})
+            contactInfo = message;
+            await chrome.tabs.update(tabId,{url:urls[guardian]})
             console.log({url:urls[guardian]})
             setTimeout(()=>{
                 chrome.scripting.executeScript({
@@ -80,7 +87,7 @@ chrome.runtime.onConnect.addListener(port=>{
         port.onMessage.addListener(async message => {
             
             const url = message.contactPortUrl
-
+            
             await chrome.tabs.update(tabId, {url})
 
             setTimeout(()=>{

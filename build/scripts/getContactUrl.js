@@ -28,15 +28,15 @@
           linkedIn: ".pv-profile-section .pv-contact-info__contact-link"
         },
         experience: {
-          dates: 'div:nth-child(2) div div:nth-child(3) span[aria-hidden="true"]'
+          dates: 'div div:nth-child(2) div div .t-black--light span[aria-hidden="true"]'
         },
         education: {
-          dates: 'div:nth-child(2) div a div:nth-child(3) span[aria-hidden="true"]'
+          dates: 'div div:nth-child(2) div .t-black--light span[aria-hidden="true"]'
         }
       },
       xpath: {
-        educationItems: "(//section[.//span[contains(text(),'Educaci\xF3n')]]//ul)[1]/li",
-        experiencieItems: "(//section[.//span[contains(text(),'Experiencia')]]//ul)[1]/li"
+        educationItems: "(//section[.//span[contains(text(),'Educaci\xF3n')]]//ul)[7]/li",
+        experienceItems: "(//section[.//span[contains(text(),'Experiencia')]]//ul)[1]/li"
       }
     },
     search: {

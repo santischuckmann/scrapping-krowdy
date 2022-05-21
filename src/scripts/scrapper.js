@@ -7,7 +7,7 @@ waitForElement('h1')
    .then( async () => {
       autoscrolling(30).then( async ()=>{
         const fullName = $(SELECTORS.profile.css.fullname).textContent
-        const experienceItems = $x(SELECTORS.profile.xpath.experiencieItems)
+        const experienceItems = $x(SELECTORS.profile.xpath.experienceItems)
         const educationItems = $x(SELECTORS.profile.xpath.educationItems)
          
         const experienceTitles = experienceItems

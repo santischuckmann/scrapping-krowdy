@@ -53,15 +53,15 @@
           linkedIn: ".pv-profile-section .pv-contact-info__contact-link"
         },
         experience: {
-          dates: 'div:nth-child(2) div div:nth-child(3) span[aria-hidden="true"]'
+          dates: 'div div:nth-child(2) div div .t-black--light span[aria-hidden="true"]'
         },
         education: {
-          dates: 'div:nth-child(2) div a div:nth-child(3) span[aria-hidden="true"]'
+          dates: 'div div:nth-child(2) div .t-black--light span[aria-hidden="true"]'
         }
       },
       xpath: {
-        educationItems: "(//section[.//span[contains(text(),'Educaci\xF3n')]]//ul)[1]/li",
-        experiencieItems: "(//section[.//span[contains(text(),'Experiencia')]]//ul)[1]/li"
+        educationItems: "(//section[.//span[contains(text(),'Educaci\xF3n')]]//ul)[7]/li",
+        experienceItems: "(//section[.//span[contains(text(),'Experiencia')]]//ul)[1]/li"
       }
     },
     search: {
@@ -74,7 +74,7 @@
   waitForElement_default("h1").then(async () => {
     autoscrolling_default(30).then(async () => {
       const fullName = $(selectors_default.profile.css.fullname).textContent;
-      const experienceItems = $x(selectors_default.profile.xpath.experiencieItems);
+      const experienceItems = $x(selectors_default.profile.xpath.experienceItems);
       const educationItems = $x(selectors_default.profile.xpath.educationItems);
       const experienceTitles = experienceItems.map((element) => $('span[aria-hidden="true"]', element)?.textContent);
       const experienceDates = experienceItems.map((element) => $(selectors_default.profile.css.experience.dates, element)?.textContent);

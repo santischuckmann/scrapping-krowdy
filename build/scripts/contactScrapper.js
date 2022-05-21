@@ -28,15 +28,15 @@
           linkedIn: ".pv-profile-section .pv-contact-info__contact-link"
         },
         experience: {
-          dates: 'div:nth-child(2) div div:nth-child(3) span[aria-hidden="true"]'
+          dates: 'div div:nth-child(2) div div .t-black--light span[aria-hidden="true"]'
         },
         education: {
-          dates: 'div:nth-child(2) div a div:nth-child(3) span[aria-hidden="true"]'
+          dates: 'div div:nth-child(2) div .t-black--light span[aria-hidden="true"]'
         }
       },
       xpath: {
-        educationItems: "(//section[.//span[contains(text(),'Educaci\xF3n')]]//ul)[1]/li",
-        experiencieItems: "(//section[.//span[contains(text(),'Experiencia')]]//ul)[1]/li"
+        educationItems: "(//section[.//span[contains(text(),'Educaci\xF3n')]]//ul)[7]/li",
+        experienceItems: "(//section[.//span[contains(text(),'Experiencia')]]//ul)[1]/li"
       }
     },
     search: {
@@ -45,24 +45,13 @@
   };
   var selectors_default = SELECTORS;
 
-  // src/functions/gatherAndDeleteNulls.js
-  var gatherAndDeleteNulls = (email, phone, linkedin) => {
-    if (email == null && phone == null) {
-      return linkedin;
-    }
-    const gathered = [email, phone, linkedin];
-    gathered.filter((element) => element != null);
-    return gathered;
-  };
-  var gatherAndDeleteNulls_default = gatherAndDeleteNulls;
-
   // src/scripts/contactScrapper.js
   waitForElement_default("#pv-contact-info").then(() => {
     const contactLinkedIn = $(selectors_default.profile.css.inside.linkedIn).textContent;
     const contactEmail = $(selectors_default.profile.css.inside.email)?.href;
     const contactPhone = $(selectors_default.profile.css.inside.phoneNumber)?.textContent;
     console.log(contactLinkedIn);
-    const contactInfo = gatherAndDeleteNulls_default(contactEmail, contactPhone, contactLinkedIn);
+    const contactInfo = [contactLinkedIn, contactEmail, contactPhone];
     let port = chrome.runtime.connect({ name: "contactSafePort" });
     port.postMessage({ contactInfo });
   }).catch(() => {

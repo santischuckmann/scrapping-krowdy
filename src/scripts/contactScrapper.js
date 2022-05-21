@@ -1,7 +1,6 @@
 import { $ } from "../functions/selector.js";
 import waitForElement from "../functions/waitForElement.js";
 import SELECTORS from "./selectors.js";
-import gatherAndDeleteNulls from "../functions/gatherAndDeleteNulls.js";
 
 
 waitForElement('#pv-contact-info')
@@ -12,7 +11,7 @@ waitForElement('#pv-contact-info')
 
          console.log(contactLinkedIn)
 
-         const contactInfo = gatherAndDeleteNulls(contactEmail, contactPhone, contactLinkedIn);
+         const contactInfo = [contactLinkedIn, contactEmail, contactPhone]
 
          let port = chrome.runtime.connect({name:"contactSafePort"})
          port.postMessage({contactInfo})

@@ -4730,7 +4730,7 @@
   // src/lib/db.js
   var db = new Dexie$1("myDatabase");
   db.version(1).stores({
-    profiles: "++id, fullname, pruebaExperience, pruebaEducation"
+    profiles: "++id, fullName, experienceTitles, experienceDates, educationTitles, educationDates, contactInfo"
   });
 
   // src/background.js
@@ -4746,6 +4746,7 @@
       });
     });
   });
+  var contactInfo;
   var guardian = 0;
   var urls;
   chrome.runtime.onConnect.addListener((port) => {
@@ -4767,10 +4768,15 @@
   chrome.runtime.onConnect.addListener((port) => {
     if (port.name === "safePort") {
       port.onMessage.addListener(async (message) => {
-        await db.profiles.add(message);
-        console.log("datos guardados en indexdb");
+        sendToDb = { ...message, contactInfo };
+        try {
+          await db.profiles.add(sendToDb);
+          console.log("datos guardados en indexdb");
+        } catch (error) {
+          console.log(error);
+        }
         if (guardian < urls.length) {
-          await chrome.tabs.update(tabId, { urls: urls[guardian + 1] });
+          await chrome.tabs.update(tabId, { url: urls[guardian + 1] });
           setTimeout(() => {
             chrome.scripting.executeScript({
               target: { tabId },
@@ -4782,9 +4788,8 @@
       });
     } else if (port.name === "contactSafePort") {
       port.onMessage.addListener(async (message) => {
-        await db.profiles.add(message);
-        console.log("datos guardados en indexdb");
-        await chrome.tabs.update(tabId, { urls: urls[guardian] });
+        contactInfo = message;
+        await chrome.tabs.update(tabId, { url: urls[guardian] });
         console.log({ url: urls[guardian] });
         setTimeout(() => {
           chrome.scripting.executeScript({
